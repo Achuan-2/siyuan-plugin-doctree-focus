@@ -42,11 +42,38 @@ export default class DocTreeFocusPlugin extends Plugin {
             .file-tree .doctree-hidden {
                 display: none !important;
             }
-            .file-tree .doctree-focused {
-                padding-left: 8px !important;
+
+            /* Reset toggle padding for focused document and its children */
+            .file-tree .doctree-focused .b3-list-item__toggle {
+                padding-left: 0 !important;
             }
-            .file-tree .doctree-focused > .b3-list-item__toggle {
-                left: -8px;
+            /* Set incremental padding for nested levels */
+            .file-tree .doctree-focused + ul > li> .b3-list-item__toggle {
+                padding-left: 18px !important;
+            }
+            .file-tree .doctree-focused + ul > li + ul > li> .b3-list-item__toggle {
+                padding-left: 36px !important;
+            }
+            .file-tree .doctree-focused + ul > li+ ul > li+ ul > li> .b3-list-item__toggle {
+                padding-left: 54px !important;
+            }
+            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+                padding-left: 72px !important;
+            }
+            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+                padding-left: 90px !important;
+            }
+            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+                padding-left: 108px !important;
+            }
+            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+                padding-left: 126px !important;
+            }
+            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+                padding-left: 144px !important;
+            }
+            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+                padding-left: 162px !important;
             }
             [data-type="exit-focus"] {
                 margin-right: 4px;
