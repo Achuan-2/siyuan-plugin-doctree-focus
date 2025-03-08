@@ -11,6 +11,9 @@ A SiYuan plugin that allows you to focus on a specific document and its children
 - **Quick Exit**: Easily exit focus mode with a single click on the toolbar button
 - **Visual Clarity**: Clean interface that helps you concentrate on the current document hierarchy
 
+![](https://fastly.jsdelivr.net/gh/Achuan-2/PicBed/assets/思源笔记文档树聚焦-2025-03-08.gif)
+
+
 ## Usage
 
 ### Focusing on a Document
@@ -23,11 +26,7 @@ A SiYuan plugin that allows you to focus on a specific document and its children
 
 Click the "Exit Focus" button in the document tree toolbar to return to the normal document tree view.
 
-## Installation
 
-1. Open SiYuan and go to Settings -> Marketplace -> Plugins
-2. Search for "DocTree Focus"
-3. Click "Install"
 
 ## Manual Installation
 
