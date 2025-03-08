@@ -1,8 +1,8 @@
 {
-  "name": "plugin-sample-vite-svelte",
-  "author": "frostime",
-  "url": "https://github.com/siyuan-note/plugin-sample-vite-svelte",
-  "version": "0.3.6",
+  "name": "siyuan-plugin-doctree-focus",
+  "author": "Achuan-2",
+  "url": "https://github.com/Achuan-2/siyuan-plugin-doctree-focus",
+  "version": "0.0.1",
   "minAppVersion": "3.0.12",
   "backends": [
     "windows",
@@ -20,12 +20,12 @@
     "desktop-window"
   ],
   "displayName": {
-    "en_US": "Plugin sample with vite and svelte",
-    "zh_CN": "插件样例 vite + svelte 版"
+    "en_US": "siyuan-plugin-doctree-focus",
+    "zh_CN": "文档树聚焦"
   },
   "description": {
-    "en_US": "SiYuan plugin sample with vite and svelte",
-    "zh_CN": "使用 vite 和 svelte 开发的思源插件样例"
+    "en_US": "Focus on the document tree",
+    "zh_CN": "聚焦文档树"
   },
   "readme": {
     "en_US": "README.md",
@@ -33,12 +33,13 @@
   },
   "funding": {
     "custom": [
-      ""
+      "Support my work"
     ]
   },
   "keywords": [
     "plugin",
     "sample",
+    "document tree",
     "插件样例"
   ]
 }

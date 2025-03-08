@@ -84,6 +84,7 @@ export default class DocTreeFocusPlugin extends Plugin {
         console.log("uninstall");
     }
 
+    // Add focus option to the document tree right-click menu
     private async addDocFocusButton({ detail }: any) {
         const elements = detail.elements;
         if (!elements || !elements.length) {
@@ -106,14 +107,6 @@ export default class DocTreeFocusPlugin extends Plugin {
         });
     }
 
-    private handleDocIconClick({ detail }: any) {
-        const target = detail.target;
-        if (target && target.getAttribute("data-type") === "exit-focus") {
-            this.exitFocusMode();
-            return true;
-        }
-        return false;
-    }
 
     private async focusOnDocument(docId: string, docElement: HTMLElement) {
         // Store the current focused document ID
@@ -131,28 +124,30 @@ export default class DocTreeFocusPlugin extends Plugin {
         docElement.classList.remove("doctree-hidden");
         docElement.classList.add("doctree-focused");
 
-        // Expand the document if it has children
-        const toggleElement = docElement.querySelector(".b3-list-item__toggle");
-        if (toggleElement && !toggleElement.classList.contains("b3-list-item__toggle--open")) {
-            (toggleElement as HTMLElement).click();
-        }
-
         // Show all child documents
         const childDocs = Array.from(docElement.nextElementSibling?.querySelectorAll(".b3-list-item") || []);
         childDocs.forEach(el => {
             el.classList.remove("doctree-hidden");
         });
 
+        // Expand the document if it has children
+        // const toggleElement = docElement.querySelector(".b3-list-item__toggle");
+        // const arrowSvg = toggleElement?.querySelector("svg");
+        // if (toggleElement && arrowSvg && !arrowSvg.classList.contains("b3-list-item__arrow--open")) {
+        //     (toggleElement as HTMLElement).click();
+        // }
+
+
         // Add exit focus button
-        this.addExitFocusButton(docId);
+        this.addExitFocusButton();
 
         // Show success message
         showMessage(this.i18n.focusEnabled, 3000);
     }
 
-    private addExitFocusButton(docId: string) {
+    private addExitFocusButton() {
         // Find the document's icon container
-        const docIconContainer = document.querySelector(`.file-tree [data-node-id="${docId}"] .block__icons`);
+        const docIconContainer = document.querySelector(`.file-tree.sy__file > .block__icons`);
         if (!docIconContainer) return;
 
         // Check if the exit focus button already exists
@@ -164,6 +159,11 @@ export default class DocTreeFocusPlugin extends Plugin {
         exitButton.className = "block__icon";
         exitButton.innerHTML = '<svg class="icon"><use xlink:href="#iconBack"></use></svg>';
         exitButton.title = this.i18n.exitFocus;
+
+        // Add click event listener to exit focus mode
+        exitButton.addEventListener("click", () => {
+            this.exitFocusMode();
+        });
 
         // Insert the button before the focus button
         const focusButton = docIconContainer.querySelector('[data-type="focus"]');
@@ -187,9 +187,12 @@ export default class DocTreeFocusPlugin extends Plugin {
         const focusedElement = document.querySelector(`.file-tree [data-node-id="${this.currentFocusedDocId}"]`);
         if (focusedElement) {
             focusedElement.classList.remove("doctree-focused");
+        }
 
-            // Remove the exit focus button
-            const exitButton = focusedElement.querySelector('[data-type="exit-focus"]');
+        // Find and remove the exit focus button from the document's icon container
+        const docIconContainer = document.querySelector(`.file-tree.sy__file > .block__icons`);
+        if (docIconContainer) {
+            const exitButton = docIconContainer.querySelector('[data-type="exit-focus"]');
             if (exitButton) exitButton.remove();
         }
 
