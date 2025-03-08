@@ -245,7 +245,7 @@ export default class DocTreeFocusPlugin extends Plugin {
         exitButton.setAttribute("data-type", "exit-focus");
         exitButton.className = "block__icon";
         exitButton.innerHTML = '<svg class="icon"><use xlink:href="#iconBack"></use></svg>';
-        exitButton.title = this.i18n.exitFocus;
+        exitButton.setAttribute("aria-label", this.i18n.exitFocus);
 
         // Add click event listener to exit focus mode
         exitButton.addEventListener("click", () => {
