@@ -1,6 +1,6 @@
 {
     "focus": "聚焦文档",
-    "exitFocus": "退出聚焦",
+    "exitFocus": "退出文档聚焦模式",
     "focusEnabled": "文档树聚焦模式已启用",
     "focusDisabled": "文档树聚焦模式已退出"
 }

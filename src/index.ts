@@ -39,40 +39,40 @@ export default class DocTreeFocusPlugin extends Plugin {
         const style = document.createElement("style");
         style.id = "doctree-focus-style";
         style.innerHTML = `
-            .file-tree .doctree-hidden {
+            .file-tree.sy__file .doctree-hidden {
                 display: none !important;
             }
 
             /* Reset toggle padding for focused document and its children */
-            .file-tree .doctree-focused .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused .b3-list-item__toggle {
                 padding-left: 0 !important;
             }
             /* Set incremental padding for nested levels */
-            .file-tree .doctree-focused + ul > li> .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li> .b3-list-item__toggle {
                 padding-left: 18px !important;
             }
-            .file-tree .doctree-focused + ul > li + ul > li> .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li + ul > li> .b3-list-item__toggle {
                 padding-left: 36px !important;
             }
-            .file-tree .doctree-focused + ul > li+ ul > li+ ul > li> .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li> .b3-list-item__toggle {
                 padding-left: 54px !important;
             }
-            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 72px !important;
             }
-            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 90px !important;
             }
-            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 108px !important;
             }
-            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 126px !important;
             }
-            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 144px !important;
             }
-            .file-tree .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 162px !important;
             }
             [data-type="exit-focus"] {
@@ -89,6 +89,9 @@ export default class DocTreeFocusPlugin extends Plugin {
             .doctree-focus-active [data-type="more"] {
                 display: none !important;
             }
+
+
+
         `;
         document.head.appendChild(style);
 
@@ -215,6 +218,25 @@ export default class DocTreeFocusPlugin extends Plugin {
         docElement.classList.remove("doctree-hidden");
         docElement.classList.add("doctree-focused");
 
+        // Change tooltip direction for more-file and new buttons in focused document
+        const moreFileBtn = docElement.querySelector('[data-type="more-file"]');
+        const newBtn = docElement.querySelector('[data-type="new"]');
+        const popoverBtn = docElement.querySelector('span.popover__block.counter');
+
+        if (moreFileBtn && moreFileBtn.classList.contains('b3-tooltips__nw')) {
+            moreFileBtn.classList.remove('b3-tooltips__nw');
+            moreFileBtn.classList.add('b3-tooltips__w');
+        }
+
+        if (newBtn && newBtn.classList.contains('b3-tooltips__nw')) {
+            newBtn.classList.remove('b3-tooltips__nw');
+            newBtn.classList.add('b3-tooltips__w');
+        } 
+        if (popoverBtn && popoverBtn.classList.contains('b3-tooltips__nw')) {
+            popoverBtn.classList.remove('b3-tooltips__nw');
+            popoverBtn.classList.add('b3-tooltips__w');
+        }
+
         // Show all child documents
         const childDocs = Array.from(docElement.nextElementSibling?.querySelectorAll(".b3-list-item") || []);
         childDocs.forEach(el => {
@@ -248,7 +270,7 @@ export default class DocTreeFocusPlugin extends Plugin {
         // Create the exit focus button
         const exitButton = document.createElement("span");
         exitButton.setAttribute("data-type", "exit-focus");
-        exitButton.className = "block__icon";
+        exitButton.className = "block__icon b3-tooltips b3-tooltips__sw";
         exitButton.innerHTML = '<svg class="icon"><use xlink:href="#iconBack"></use></svg>';
         exitButton.setAttribute("aria-label", this.i18n.exitFocus);
 
