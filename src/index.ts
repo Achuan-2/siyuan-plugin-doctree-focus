@@ -88,12 +88,15 @@ export default class DocTreeFocusPlugin extends Plugin {
         // Register event listener for document tree right-click menu
         this.eventBus.on("open-menu-doctree", this.addDocFocusButton.bind(this));
 
-        // Listen for click events to handle exit focus button
-        this.eventBus.on("click-docicon", this.handleDocIconClick.bind(this));
+
+
+
     }
 
-    onLayoutReady() {
+    async onLayoutReady() {
         // Initialize any required settings
+        // Load saved focus state
+        await this.loadFocusState();
     }
 
     async onunload() {
@@ -134,6 +137,60 @@ export default class DocTreeFocusPlugin extends Plugin {
         });
     }
 
+    private async loadFocusState() {
+        const savedData = await this.loadData(STORAGE_NAME);
+        console.log("Saved data", savedData);
+        if (savedData && savedData.focusedDocId) {
+            // Wait for the file tree to be available in the DOM
+            await this.waitForElement(`.file-tree.sy__file li[data-node-id="${savedData.focusedDocId}"]`);
+
+            // Find the document element by ID
+            const docElement = document.querySelector(`.file-tree.sy__file li[data-node-id="${savedData.focusedDocId}"]`);
+            console.log(docElement);
+            if (docElement) {
+                // Restore the focus state
+                this.focusOnDocument(savedData.focusedDocId, docElement as HTMLElement);
+            }
+        }
+    }
+
+    /**
+     * Helper function to wait for an element to appear in the DOM
+     * @param selector CSS selector of the element to wait for
+     * @param timeout Optional timeout in milliseconds (default: 10000)
+     * @returns Promise that resolves when the element is found
+     */
+    private waitForElement(selector: string, timeout: number = 10000): Promise<Element> {
+        return new Promise((resolve, reject) => {
+            // Check if element already exists
+            const element = document.querySelector(selector);
+            if (element) {
+                return resolve(element);
+            }
+
+            // Set a timeout for rejection
+            const timeoutId = setTimeout(() => {
+                observer.disconnect();
+                reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+            }, timeout);
+
+            // Create a mutation observer to watch for DOM changes
+            const observer = new MutationObserver((mutations) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    observer.disconnect();
+                    clearTimeout(timeoutId);
+                    resolve(element);
+                }
+            });
+
+            // Start observing the document
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    }
 
     private async focusOnDocument(docId: string, docElement: HTMLElement) {
         // Store the current focused document ID
@@ -168,6 +225,9 @@ export default class DocTreeFocusPlugin extends Plugin {
         // Add exit focus button
         this.addExitFocusButton();
 
+        // Save the focused document ID to persistent storage
+        await this.saveData(STORAGE_NAME, { focusedDocId: docId });
+
         // Show success message
         showMessage(this.i18n.focusEnabled, 3000);
     }
@@ -201,7 +261,7 @@ export default class DocTreeFocusPlugin extends Plugin {
         }
     }
 
-    private exitFocusMode() {
+    private async exitFocusMode() {
         if (!this.currentFocusedDocId) return;
 
         // Remove hidden class from all documents
@@ -223,7 +283,11 @@ export default class DocTreeFocusPlugin extends Plugin {
             if (exitButton) exitButton.remove();
         }
 
+        // Clear the focused document ID
         this.currentFocusedDocId = null;
+
+        // Clear the saved focus state
+        await this.saveData(STORAGE_NAME, { focusedDocId: null });
 
         // Show success message
         showMessage(this.i18n.focusDisabled, 3000);
