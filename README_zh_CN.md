@@ -27,7 +27,7 @@
 
 ## 手动安装
 
-1. 从最新的[发布版本](https://github.com/username/siyuan-plugin-doctree-focus/releases)下载 `package.zip`
+1. 从最新的[发布版本](https://github.com/Achuan-2/siyuan-plugin-doctree-focus/releases)下载 `package.zip`
 2. 解压到 `{workspace}/data/plugins/siyuan-plugin-doctree-focus`
 3. 重启思源笔记
 
