@@ -39,3 +39,9 @@ If you encounter any issues or have suggestions, please [open an issue](https://
 
 [MIT License](./LICENSE)
 
+## Powered by Love
+
+If you like my plugin, please consider giving a star to the GitHub repository and making a donation. This will motivate me to continue improving this plugin and developing new ones.
+
+![](https://fastly.jsdelivr.net/gh/Achuan-2/PicBed/assets/20241128221208-2024-11-28.png)
+
