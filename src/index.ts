@@ -82,6 +82,13 @@ export default class DocTreeFocusPlugin extends Plugin {
             [data-type="exit-focus"]:hover {
                 color: var(--b3-theme-on-surface);
             }
+            
+            /* Hide focus, collapse and more buttons when in focus mode */
+            .doctree-focus-active [data-type="focus"],
+            .doctree-focus-active [data-type="collapse"],
+            .doctree-focus-active [data-type="more"] {
+                display: none !important;
+            }
         `;
         document.head.appendChild(style);
 
@@ -214,13 +221,11 @@ export default class DocTreeFocusPlugin extends Plugin {
             el.classList.remove("doctree-hidden");
         });
 
-        // Expand the document if it has children
-        // const toggleElement = docElement.querySelector(".b3-list-item__toggle");
-        // const arrowSvg = toggleElement?.querySelector("svg");
-        // if (toggleElement && arrowSvg && !arrowSvg.classList.contains("b3-list-item__arrow--open")) {
-        //     (toggleElement as HTMLElement).click();
-        // }
-
+        // Add doctree-focus-active class to the file tree to hide specific buttons
+        const fileTree = document.querySelector('.file-tree.sy__file');
+        if (fileTree) {
+            fileTree.classList.add('doctree-focus-active');
+        }
 
         // Add exit focus button
         this.addExitFocusButton();
@@ -252,11 +257,12 @@ export default class DocTreeFocusPlugin extends Plugin {
             this.exitFocusMode();
         });
 
-        // Insert the button before the focus button
-        const focusButton = docIconContainer.querySelector('[data-type="focus"]');
-        if (focusButton) {
-            docIconContainer.insertBefore(exitButton, focusButton);
+        // Insert the button after the block__logo
+        const logoElement = docIconContainer.querySelector('.block__logo');
+        if (logoElement) {
+            logoElement.insertAdjacentElement('afterend', exitButton);
         } else {
+            // Fall back to prepending if logo not found
             docIconContainer.prepend(exitButton);
         }
     }
@@ -274,6 +280,12 @@ export default class DocTreeFocusPlugin extends Plugin {
         const focusedElement = document.querySelector(`.file-tree [data-node-id="${this.currentFocusedDocId}"]`);
         if (focusedElement) {
             focusedElement.classList.remove("doctree-focused");
+        }
+
+        // Remove doctree-focus-active class from the file tree to show the buttons again
+        const fileTree = document.querySelector('.file-tree.sy__file');
+        if (fileTree) {
+            fileTree.classList.remove('doctree-focus-active');
         }
 
         // Find and remove the exit focus button from the document's icon container
