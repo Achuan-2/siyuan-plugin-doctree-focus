@@ -44,35 +44,35 @@ export default class DocTreeFocusPlugin extends Plugin {
             }
 
             /* Reset toggle padding for focused document and its children */
-            .file-tree.sy__file .doctree-focused .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused>.b3-list-item__toggle {
                 padding-left: 0 !important;
             }
             /* Set incremental padding for nested levels */
-            .file-tree.sy__file .doctree-focused + ul > li> .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li> .b3-list-item__toggle {
                 padding-left: 18px !important;
             }
-            .file-tree.sy__file .doctree-focused + ul > li + ul > li> .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li + ul > li> .b3-list-item__toggle {
                 padding-left: 36px !important;
             }
-            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li> .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li + ul > li + ul > li> .b3-list-item__toggle {
                 padding-left: 54px !important;
             }
-            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 72px !important;
             }
-            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 90px !important;
             }
-            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 108px !important;
             }
-            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 126px !important;
             }
-            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 144px !important;
             }
-            .file-tree.sy__file .doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
+            .file-tree.sy__file li[data-node-id].doctree-focused + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li + ul > li > .b3-list-item__toggle {
                 padding-left: 162px !important;
             }
             [data-type="exit-focus"] {
@@ -131,35 +131,93 @@ export default class DocTreeFocusPlugin extends Plugin {
             return;
         }
 
-        // Get the first selected document element
-        const docElement = elements[0];
-        const docId = docElement.getAttribute("data-node-id");
+        // Get the first selected element
+        const element = elements[0];
 
-        if (!docId) return;
+        // Check if it's a notebook or a document
+        const isNotebook = element.getAttribute("data-type") === "navigation-root";
+        const docId = element.getAttribute("data-node-id");
 
-        // Add focus option to the menu
+        // Add focus option to the menu for both notebooks and documents
         detail.menu.addItem({
             icon: "iconFocus",
             label: this.i18n.focus,
             click: () => {
-                this.focusOnDocument(docId, docElement);
+                if (isNotebook) {
+                    this.focusOnNotebook(element);
+                } else if (docId) {
+                    this.focusOnDocument(docId, element);
+                }
             }
         });
+    }
+
+    // New method to focus on notebook
+    private async focusOnNotebook(notebookElement: HTMLElement) {
+        // Store the current focused element
+        this.currentFocusedDocId = "notebook:" + notebookElement.parentElement.getAttribute("data-url");
+
+        // Get the parent UL which contains all notebooks
+        const notebookParent = notebookElement.parentElement;
+
+        // Get all notebook ul elements in the file tree
+        const allNotebookUls = document.querySelectorAll(".file-tree.sy__file ul[data-url]");
+
+        // Mark all notebook ULs as hidden except the one that belongs to the selected notebook
+        allNotebookUls.forEach(el => {
+            // Check if this is the UL of the selected notebook
+            if (el.getAttribute("data-url") !== notebookElement.getAttribute("data-url")) {
+                el.classList.add("doctree-hidden");
+            }
+        });
+
+        // Make sure the notebooks list itself remains visible
+        if (notebookParent) {
+            notebookParent.classList.remove("doctree-hidden");
+        }
+
+        // Mark the selected notebook as focused
+        notebookElement.classList.add("doctree-focused");
+
+        // Add doctree-focus-active class to the file tree to hide specific buttons
+        const fileTree = document.querySelector('.file-tree.sy__file');
+        if (fileTree) {
+            fileTree.classList.add('doctree-focus-active');
+        }
+
+        // Add exit focus button
+        this.addExitFocusButton();
+
+        // Save the focused notebook ID to persistent storage
+        await this.saveData(STORAGE_NAME, { focusedDocId: this.currentFocusedDocId });
+
+        // Show success message
+        // showMessage(this.i18n.focusEnabled, 3000);
     }
 
     private async loadFocusState() {
         const savedData = await this.loadData(STORAGE_NAME);
         console.log("Saved data", savedData);
         if (savedData && savedData.focusedDocId) {
-            // Wait for the file tree to be available in the DOM
-            await this.waitForElement(`.file-tree.sy__file li[data-node-id="${savedData.focusedDocId}"]`);
+            // Check if the saved focus is for a notebook or document
+            const isNotebook = savedData.focusedDocId.startsWith("notebook:");
 
-            // Find the document element by ID
-            const docElement = document.querySelector(`.file-tree.sy__file li[data-node-id="${savedData.focusedDocId}"]`);
-            console.log(docElement);
-            if (docElement) {
-                // Restore the focus state
-                this.focusOnDocument(savedData.focusedDocId, docElement as HTMLElement);
+            if (isNotebook) {
+                // Handle notebook focus restoration
+                const notebookUrl = savedData.focusedDocId.substring("notebook:".length);
+                await this.waitForElement(`.file-tree.sy__file ul[data-url="${notebookUrl}"]`);
+
+                const notebookElement = document.querySelector(`.file-tree.sy__file ul[data-url="${notebookUrl}"]>li[data-type="navigation-root"]`);
+                if (notebookElement) {
+                    this.focusOnNotebook(notebookElement as HTMLElement);
+                }
+            } else {
+                // Handle document focus restoration (existing code)
+                await this.waitForElement(`.file-tree.sy__file li[data-node-id="${savedData.focusedDocId}"]`);
+                const docElement = document.querySelector(`.file-tree.sy__file li[data-node-id="${savedData.focusedDocId}"]`);
+                if (docElement) {
+                    this.focusOnDocument(savedData.focusedDocId, docElement as HTMLElement);
+                }
             }
         }
     }
@@ -203,6 +261,11 @@ export default class DocTreeFocusPlugin extends Plugin {
     }
 
     private async focusOnDocument(docId: string, docElement: HTMLElement) {
+        const focusedElements = document.querySelectorAll(".file-tree.sy__file li.doctree-focused");
+        focusedElements.forEach(el => {
+            el.classList.remove("doctree-focused");
+        });
+
         // Store the current focused document ID
         this.currentFocusedDocId = docId;
 
@@ -231,7 +294,7 @@ export default class DocTreeFocusPlugin extends Plugin {
         if (newBtn && newBtn.classList.contains('b3-tooltips__nw')) {
             newBtn.classList.remove('b3-tooltips__nw');
             newBtn.classList.add('b3-tooltips__w');
-        } 
+        }
         if (popoverBtn && popoverBtn.classList.contains('b3-tooltips__nw')) {
             popoverBtn.classList.remove('b3-tooltips__nw');
             popoverBtn.classList.add('b3-tooltips__w');
@@ -256,7 +319,7 @@ export default class DocTreeFocusPlugin extends Plugin {
         await this.saveData(STORAGE_NAME, { focusedDocId: docId });
 
         // Show success message
-        showMessage(this.i18n.focusEnabled, 3000);
+        // showMessage(this.i18n.focusEnabled, 3000);
     }
 
     private addExitFocusButton() {
@@ -292,17 +355,27 @@ export default class DocTreeFocusPlugin extends Plugin {
     private async exitFocusMode() {
         if (!this.currentFocusedDocId) return;
 
-        // Remove hidden class from all documents
-        const allDocElements = document.querySelectorAll(".file-tree .b3-list-item");
-        allDocElements.forEach(el => {
+        // Remove hidden class from all elements in the file tree - both notebooks and documents
+        const allElements = document.querySelectorAll(".file-tree.sy__file li.doctree-hidden");
+        allElements.forEach(el => {
             el.classList.remove("doctree-hidden");
         });
+        const focusedElements = document.querySelectorAll(".file-tree.sy__file li.doctree-focused");
+        focusedElements.forEach(el => {
+            el.classList.remove("doctree-focused");
+        });
+        const allNotebooks = document.querySelectorAll(".file-tree.sy__file ul[data-url].doctree-hidden");
+        allNotebooks.forEach(el => {
+            el.classList.remove("doctree-hidden");
+        
+            el.classList.remove("doctree-focused");
+        });
+        const focusedNotebooks = document.querySelectorAll(".file-tree.sy__file ul[data-url].doctree-focused");
+        focusedNotebooks.forEach(el => {
+            el.classList.remove("doctree-focused");
+        });
+            
 
-        // Remove focused class from the focused document
-        const focusedElement = document.querySelector(`.file-tree [data-node-id="${this.currentFocusedDocId}"]`);
-        if (focusedElement) {
-            focusedElement.classList.remove("doctree-focused");
-        }
 
         // Remove doctree-focus-active class from the file tree to show the buttons again
         const fileTree = document.querySelector('.file-tree.sy__file');
@@ -324,6 +397,6 @@ export default class DocTreeFocusPlugin extends Plugin {
         await this.saveData(STORAGE_NAME, { focusedDocId: null });
 
         // Show success message
-        showMessage(this.i18n.focusDisabled, 3000);
+        // showMessage(this.i18n.focusDisabled, 3000);
     }
 }
